@@ -34,5 +34,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    int backlog = 5;
+    if (listen(sockfd, backlog) < 0) {
+        printf("Listen failed: %s...\n", strerror(errno)); 
+        return 1;
+    }
+
     return EXIT_SUCCESS;
 }
