@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
     int reuse = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(&reuse)) < 0){
         printf("Could not reuse socket: %s...\n", strerror(errno));
+        return 1;
     }
 
     struct sockaddr_in serv_addr = {
@@ -27,6 +28,11 @@ int main(int argc, char *argv[]) {
         .sin_addr.s_addr = INADDR_ANY,
         .sin_port = htons(PORT),
     };
+
+    if (bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
+        printf("Could not bind socket: %s...\n", strerror(errno));
+        return 1;
+    }
 
     return EXIT_SUCCESS;
 }
