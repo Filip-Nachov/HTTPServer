@@ -54,6 +54,15 @@ int main(int argc, char *argv[]) {
 
     printf("Client Connected\n");
 
+    char buf[256] = {0};
+    if (recv(clientFd, buf, sizeof(buf), 0) < 0) {
+        printf("Could not get buffer: %s...\n", strerror(errno));
+        return 1;
+    }
+
+    char *uri = buf + 5;
+    *strchr(uri, ' ') = '\0';
+
     close(clientFd);
     close(sockFd);
 
