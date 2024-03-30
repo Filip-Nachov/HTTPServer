@@ -1,6 +1,8 @@
 #include <asm-generic/socket.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/sendfile.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,6 +54,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    char *msg = "HTTP/1.1 200 OK \r\n\r\n";
+    send(clientFd, msg, strlen(msg), 0);
+
     printf("Client Connected\n");
 
     char buf[256] = {0};
@@ -62,7 +67,10 @@ int main(int argc, char *argv[]) {
 
     char *uri = buf + 5;
     *strchr(uri, ' ') = '\0';
+    int openedFd = open(uri, O_RDONLY);
+    sendfile(clientFd, openedFd, 0, 256);
 
+    close(openedFd);
     close(clientFd);
     close(sockFd);
 
