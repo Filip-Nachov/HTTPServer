@@ -56,18 +56,16 @@ int main(int argc, char *argv[]) {
 
     printf("Client Connected\n");
 
-    char buf[1024] = {0};
+    char buf[1024] = {0}, bufCopy[1024] = {0};
     if (recv(clientFd, buf, sizeof(buf), 0) < 0) {
         printf("Could not get buffer: %s...\n", strerror(errno));
         return 1;
     }
 
-    // PLEASE FOR THE LOVE OF GOD CHANGE THIS
-    char *method = buf;
-    *strchr(method, ' ') = '\0';
-    char *uri = buf + 4;
-    *strchr(uri, ' ') = '\0';
-    // TO HERE AND USE STRTOK
+    strcpy(bufCopy, buf);
+    char *method = strtok(bufCopy, " ");
+    char *uri = strtok(NULL, " ");
+    strtok(NULL, "\r\n");
 
     char *msg200 = "HTTP/1.1 200 OK \r\n\r\n";
     char *msg404 = "HTTP/1.1 404 Not Found \r\n\r\n";
