@@ -17,6 +17,25 @@
 void *handleClient(void *p_clientFd);
 const char *getFileExtension(const char *file_name);
 void buildResponse(const char *fileName, const char *fileExt, char *response, ssize_t *responseLen);
+const char *getMIMEType(const char *file_ext);
+
+const char *getMIMEType(const char *file_ext) {
+    if (strcasecmp(file_ext, "html") == 0) {
+        return "text/html";
+    } else if (strcasecmp(file_ext, "txt") == 0) {
+        return "text/plain";
+    } else if (strcasecmp(file_ext, "jpg") == 0 || strcasecmp(file_ext, "jpeg") == 0) {
+        return "image/jpeg";
+    } else if (strcasecmp(file_ext, "png") == 0) {
+        return "image/png";
+    } else {
+        return "application/octet-stream";
+    }
+}
+
+void buildResponse(const char *fileName, const char *fileExt, char *response, ssize_t *responseLen) {
+    const char *mimeType = getMIMEType(fileExt);
+}
 
 const char *getFileExtension(const char *file_name) {
     const char *dot = strrchr(file_name, '.');
