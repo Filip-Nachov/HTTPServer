@@ -24,6 +24,8 @@ const char *getMIMEType(const char *file_ext);
 const char *getMIMEType(const char *file_ext) {
     if (strcasecmp(file_ext, "html") == 0) {
         return "text/html";
+    } else if (strcasecmp(file_ext, "css") == 0) {
+        return "text/css";
     } else if (strcasecmp(file_ext, "txt") == 0) {
         return "text/plain";
     } else if (strcasecmp(file_ext, "jpg") == 0 || strcasecmp(file_ext, "jpeg") == 0) {
