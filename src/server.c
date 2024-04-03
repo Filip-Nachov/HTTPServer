@@ -18,6 +18,14 @@ void *handleClient(void *p_clientFd);
 const char *getFileExtension(const char *file_name);
 void buildResponse(const char *fileName, const char *fileExt, char *response, ssize_t *responseLen);
 
+const char *getFileExtension(const char *file_name) {
+    const char *dot = strrchr(file_name, '.');
+    if (!dot || dot == file_name) {
+        return "";
+    }
+    return dot + 1;
+}
+
 void *handleClient(void *p_clientFd) {
     int clientFd = *((int*)p_clientFd);
     free(p_clientFd);
