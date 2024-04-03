@@ -9,8 +9,12 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <pthread.h>
 
 #define PORT 6969
+#define MAX_SIZE 4096
+
+void *handleClient(void *p_clientFd);
 
 int main(int argc, char *argv[]) {
     int sockFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -45,39 +49,22 @@ int main(int argc, char *argv[]) {
 
     printf("Waiting for a client to connect...\n");
     
-    struct sockaddr_in clientAddr;
-    socklen_t clientAddrLen = sizeof(clientAddr);
-    int clientFd = accept(sockFd, (struct sockaddr*) &clientAddr, &clientAddrLen);
-    
-    if (clientFd < 0) {
-        printf("Could not accept connection: %s...\n", strerror(errno));
-        return 1;
+    while (1) {
+        struct sockaddr_in clientAddr;
+        socklen_t clientAddrLen = sizeof(clientAddr);
+        int clientFd = accept(sockFd, (struct sockaddr*) &clientAddr, &clientAddrLen);
+
+        if (clientFd < 0) {
+            printf("Could not accept connection: %s...\n", strerror(errno));
+            return 1;
+        } 
+        printf("Client Connected\n");
+        pthread_t t;
+        int *pClient = malloc(sizeof(int));
+        *pClient = clientFd;
+        pthread_create(&t, NULL, handleClient, pClient);
     }
 
-    printf("Client Connected\n");
-
-    char buf[1024] = {0}, bufCopy[1024] = {0};
-    if (recv(clientFd, buf, sizeof(buf), 0) < 0) {
-        printf("Could not get buffer: %s...\n", strerror(errno));
-        return 1;
-    }
-
-    strcpy(bufCopy, buf);
-    char *method = strtok(bufCopy, " ");
-    char *uri = strtok(NULL, " ");
-    strtok(NULL, "\r\n");
-
-    char *msg200 = "HTTP/1.1 200 OK \r\n\r\n";
-    char *msg404 = "HTTP/1.1 404 Not Found \r\n\r\n";
-
-    if (strcmp(uri, "/") == 0) {
-        send(clientFd, msg200, strlen(msg200), 0);
-    }
-    else {
-        send(clientFd, msg404, strlen(msg404), 0);
-    }
-
-    close(clientFd);
     close(sockFd);
 
     return EXIT_SUCCESS;
