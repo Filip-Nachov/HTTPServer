@@ -1,4 +1,5 @@
 #include <asm-generic/socket.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/sendfile.h>
@@ -10,6 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <sys/stat.h>
 
 #define PORT 6969
 #define MAX_SIZE 4096
@@ -35,6 +37,39 @@ const char *getMIMEType(const char *file_ext) {
 
 void buildResponse(const char *fileName, const char *fileExt, char *response, ssize_t *responseLen) {
     const char *mimeType = getMIMEType(fileExt);
+    char *header = (char*)malloc(MAX_SIZE);
+
+    snprintf(header, MAX_SIZE,
+             "HTTP/1.1 200 OK\r\n"
+             "Content-Type: %s\r\n"
+             "\r\n",
+             mimeType);
+
+    int fileFd = open(fileName, O_RDONLY);
+    if (fileFd == -1) {
+        snprintf(response, MAX_SIZE,
+                 "HTTP/1.1 404 Not Found\r\n"
+                 "Content-Type: text/plain\r\n"
+                 "\r\n"
+                 "404 Not Found");
+        *responseLen = strlen(response);
+        return;
+    }
+
+    struct stat file_stat;
+    fstat(fileFd, &file_stat);
+    off_t file_size = file_stat.st_size;
+
+    *responseLen += strlen(header);
+    memcpy(response, header, strlen(header));
+
+    ssize_t bytes_read;
+    while ((bytes_read = read(fileFd, response + *responseLen, MAX_SIZE - *responseLen)) > 0) {
+        *responseLen += bytes_read;
+    }
+
+    free(header);
+    close(fileFd);
 }
 
 const char *getFileExtension(const char *file_name) {
@@ -69,8 +104,8 @@ void *handleClient(void *p_clientFd) {
     char fileExt[32] = {0};
     char fileName[256];
     strcpy(fileExt, getFileExtension(filePath));
-    strncpy(fileName, filePath, strlen(filePath) - strlen(fileExt) - 1);
-    fileName[strlen(filePath) - strlen(fileExt) - 1] = '\0';
+    strncpy(fileName, filePath + 1, strlen(filePath));
+    fileName[strlen(filePath)] = '\0';
 
     char *response = (char *)malloc(MAX_SIZE * 2);
     ssize_t responseLen;
@@ -78,7 +113,6 @@ void *handleClient(void *p_clientFd) {
 
     send(clientFd, response, responseLen, 0);
 
-    printf("%s\n", fileExt);
     close(clientFd);
     return NULL;
 }
