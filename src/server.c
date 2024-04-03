@@ -13,7 +13,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 
-#define PORT 6969
+#define PORT 8080
 #define MAX_SIZE 4096
 
 void *handleClient(void *p_clientFd);
