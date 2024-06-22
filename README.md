@@ -41,7 +41,7 @@ HTTPServer is a simple HTTP server written in C, capable of serving static files
 
 5. The server will start listening on port 8080 by default. You can change the port in the `server.c` file if needed.
 
-6. Access files using your web browser or HTTP client by specifying the file path in the URL, e.g., `http://localhost:6969/index.html`.
+6. Access files using your web browser or HTTP client by specifying the file path in the URL, e.g., `http://localhost:8080/index.html`.
 
 ## License
 
