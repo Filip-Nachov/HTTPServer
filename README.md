@@ -27,13 +27,18 @@ HTTPServer is a simple HTTP server written in C, capable of serving static files
     cd HTTPServer
     ```
 
-3. Compile the server:
+3. Make a directory to store the compiled code
+    ```bash
+    mkdir build
+    ```
+
+5. Compile the server:
 
     ```bash
     make
     ```
 
-4. Run the server:
+6. Run the server:
 
     ```bash
     ./server
